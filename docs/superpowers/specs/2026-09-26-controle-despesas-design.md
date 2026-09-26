@@ -32,7 +32,7 @@ confirmação do usuário).
 - React + TypeScript + Vite
 - `vite-plugin-pwa` (service worker, manifest, funcionamento offline)
 - `idb` para IndexedDB
-- `react-router-dom` com `HashRouter` (funciona em hospedagem estática)
+- `react-router` v7 com `HashRouter` (funciona em hospedagem estática)
 - Vitest + Testing Library + `fake-indexeddb` para testes
 - ESLint + Prettier
 - CSS simples (CSS Modules ou um arquivo global), mobile-first; sem biblioteca
@@ -80,8 +80,9 @@ permitido se ela não tiver despesas; caso contrário, oferece arquivar.
 
 ### storage/
 - `db.ts`: abre o banco `despesas-pessoais` (versão 1) com stores
-  `categorias`, `limites` (índice `categoriaId`) e `despesas` (índice `mes`,
-  derivado da data e guardado no registro).
+  `categorias`, `limites` (índice `categoriaId`) e `despesas` (índices `data`
+  e `categoriaId`; as despesas do mês são buscadas pelo intervalo de datas
+  `AAAA-MM-01` a `AAAA-MM-31`).
 - `repositorio.ts`: `listarCategorias`, `salvarCategoria`, `excluirCategoria`,
   `listarLimites`, `definirLimite(categoriaId, valor, mes)`,
   `listarDespesasDoMes(mes)`, `salvarDespesa`, `excluirDespesa`.
@@ -118,8 +119,7 @@ Navegação inferior com três abas: **Mês**, **Categorias**, **Ajustes**.
    - Se não houver categorias, mostra sugestões para criar com um toque
      (Mercado, Transporte, Moradia, Lazer, Saúde).
 5. **Ajustes**
-   - Exportar backup: baixa `despesas-backup-AAAA-MM-DD.json` (usa Web Share
-     no celular quando disponível).
+   - Exportar backup: baixa `despesas-backup-AAAA-MM-DD.json`.
    - Importar backup: escolhe arquivo, valida, mostra resumo (n categorias,
      n despesas) e pede confirmação antes de substituir.
    - Mostra data do último backup exportado; se passar de 30 dias, a tela
@@ -132,8 +132,8 @@ Navegação inferior com três abas: **Mês**, **Categorias**, **Ajustes**.
 - Valor inválido no formulário: mensagem junto ao campo; não salva.
 - Backup inválido ou de versão desconhecida: mensagem de erro; nenhum dado é
   alterado (validação antes da transação).
-- Falha ao salvar: mensagem temporária (toast) e o formulário mantém o que foi
-  digitado.
+- Falha ao salvar: mensagem de erro no próprio formulário, que mantém o que
+  foi digitado.
 
 ## Testes
 
