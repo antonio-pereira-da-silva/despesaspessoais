@@ -1,0 +1,105 @@
+import { Link, useSearchParams } from 'react-router';
+import { formatarBRL } from '../../domain/dinheiro';
+import { mesAnterior, mesAtual, nomeDoMes, proximoMes } from '../../domain/mes';
+import { resumoDoMes } from '../../domain/orcamento';
+import { BarraProgresso } from '../BarraProgresso';
+import { lerUltimoBackup, precisaLembrarBackup } from '../backupLocal';
+import { useDados, useDespesasDoMes } from '../dados';
+import { mesDaUrl } from '../parametros';
+import { textoSituacao } from '../situacao';
+
+export function TelaMes() {
+  const { categorias, limites } = useDados();
+  const [params, setParams] = useSearchParams();
+  const mes = mesDaUrl(params);
+  const despesas = useDespesasDoMes(mes);
+
+  const cabecalho = (
+    <header className="cabecalho-mes">
+      <button
+        type="button"
+        className="botao-icone"
+        aria-label="Mês anterior"
+        onClick={() => setParams({ mes: mesAnterior(mes) })}
+      >
+        ‹
+      </button>
+      <h1>{nomeDoMes(mes)}</h1>
+      <button
+        type="button"
+        className="botao-icone"
+        aria-label="Próximo mês"
+        onClick={() => setParams({ mes: proximoMes(mes) })}
+      >
+        ›
+      </button>
+    </header>
+  );
+
+  if (!despesas) {
+    return (
+      <>
+        {cabecalho}
+        <p className="aviso">Carregando…</p>
+      </>
+    );
+  }
+
+  const resumo = resumoDoMes(categorias, limites, despesas, mes);
+  const lembrarBackup =
+    mes === mesAtual() && despesas.length > 0 && precisaLembrarBackup(lerUltimoBackup());
+
+  return (
+    <>
+      {cabecalho}
+      {lembrarBackup && (
+        <p className="lembrete">
+          Faz tempo que você não salva um backup. <Link to="/ajustes">Fazer backup</Link>
+        </p>
+      )}
+      {resumo.categorias.length === 0 ? (
+        <p className="aviso">
+          Nenhuma categoria ainda. <Link to="/categorias">Crie suas categorias</Link> para começar.
+        </p>
+      ) : (
+        <>
+          <p className="total">
+            Gasto <strong>{formatarBRL(resumo.totalGasto)}</strong>
+            {resumo.totalLimites > 0 && ` de ${formatarBRL(resumo.totalLimites)}`}
+          </p>
+          <ul className="lista-cartoes">
+            {resumo.categorias.map((r) => (
+              <li key={r.categoria.id}>
+                <Link
+                  to={`/categoria/${r.categoria.id}?mes=${mes}`}
+                  className="cartao"
+                  data-status={r.status}
+                >
+                  <span className="cartao__topo">
+                    <span className="cartao__titulo">
+                      <span className="bolinha" style={{ background: r.categoria.cor }} />
+                      {r.categoria.nome}
+                    </span>
+                    <span className="cartao__valores">
+                      {formatarBRL(r.gasto)}
+                      {r.limite !== null && ` de ${formatarBRL(r.limite)}`}
+                    </span>
+                  </span>
+                  <BarraProgresso
+                    percentual={r.percentual}
+                    status={r.status}
+                    rotulo={`Uso do limite de ${r.categoria.nome}`}
+                  />
+                  <span className="cartao__situacao">{textoSituacao(r)}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      <Link to={`/despesa/nova?mes=${mes}`} className="botao-flutuante" aria-label="Nova despesa">
+        +
+      </Link>
+    </>
+  );
+}
