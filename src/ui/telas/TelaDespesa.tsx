@@ -1,5 +1,5 @@
 import { useEffect, useId, useState, type CSSProperties, type FormEvent } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { parseValor, valorParaCampo } from '../../domain/dinheiro';
 import { novoId } from '../../domain/id';
 import { ehDataValida, hojeISO, mesAtual, mesDe, ultimoDiaDoMes } from '../../domain/mes';
@@ -40,6 +40,7 @@ function FormDespesa({ original }: { original?: Despesa }) {
   const { repo, categorias, aposAlterar } = useDados();
   const [params] = useSearchParams();
   const voltar = useVoltar();
+  const navigate = useNavigate();
   const ids = { valor: useId(), data: useId(), descricao: useId() };
   const mes = mesDaUrl(params);
 
@@ -94,7 +95,13 @@ function FormDespesa({ original }: { original?: Despesa }) {
         criadaEm: original?.criadaEm ?? new Date().toISOString(),
       });
       await aposAlterar();
-      voltar(destino);
+      const mudouDeLugar =
+        original && (mesDe(original.data) !== mesDe(data) || original.categoriaId !== categoriaId);
+      if (mudouDeLugar) {
+        void navigate(`/categoria/${categoriaId}?mes=${mesDe(data)}`, { replace: true });
+      } else {
+        voltar(destino);
+      }
     } catch {
       setErro('Não foi possível salvar. Tente novamente.');
       setSalvando(false);

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { semear } from '../../test/semear';
@@ -93,6 +93,31 @@ describe('despesa', () => {
     await user.click(screen.getByText('Feira'));
     await user.click(await screen.findByRole('button', { name: 'Excluir despesa' }));
     expect(await screen.findByText(/Nenhuma despesa nesta categoria/)).toBeInTheDocument();
+  });
+
+  it('ao mudar a despesa de mês, mostra a categoria no mês novo', async () => {
+    const user = userEvent.setup();
+    await semear({
+      categorias: [{ id: 'm', nome: 'Mercado', cor: '#2a9d8f', arquivada: false }],
+      despesas: [
+        {
+          id: 'd',
+          valor: 5000,
+          categoriaId: 'm',
+          data: '2026-09-10',
+          descricao: 'Feira',
+          criadaEm: '2026-09-10T12:00:00.000Z',
+        },
+      ],
+    });
+    window.location.hash = '#/categoria/m?mes=2026-09';
+    render(<App />);
+    await user.click(await screen.findByText('Feira'));
+    fireEvent.change(await screen.findByLabelText('Data'), { target: { value: '2026-08-20' } });
+    await user.click(screen.getByRole('button', { name: 'Salvar' }));
+    expect(await screen.findByText('agosto de 2026')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Mercado' })).toBeInTheDocument();
+    expect(await screen.findByText('Feira')).toBeInTheDocument();
   });
 
   it('mostra aviso para despesa inexistente', async () => {
