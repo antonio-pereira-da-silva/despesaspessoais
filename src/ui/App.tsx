@@ -4,6 +4,7 @@ import { abrirBanco } from '../storage/db';
 import { criarRepositorio, type Repositorio } from '../storage/repositorio';
 import { DadosProvider } from './DadosProvider';
 import { NavInferior } from './NavInferior';
+import { TelaAjustes } from './telas/TelaAjustes';
 import { TelaCategoria } from './telas/TelaCategoria';
 import { TelaCategorias } from './telas/TelaCategorias';
 import { TelaDespesa } from './telas/TelaDespesa';
@@ -56,6 +57,7 @@ export function App() {
             <Route path="/categorias/:id" element={<TelaCategoria />} />
             <Route path="/despesa/nova" element={<TelaDespesa />} />
             <Route path="/despesa/:id" element={<TelaDespesa />} />
+            <Route path="/ajustes" element={<TelaAjustes />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
