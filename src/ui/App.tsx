@@ -6,6 +6,7 @@ import { DadosProvider } from './DadosProvider';
 import { NavInferior } from './NavInferior';
 import { TelaCategoria } from './telas/TelaCategoria';
 import { TelaCategorias } from './telas/TelaCategorias';
+import { TelaDespesa } from './telas/TelaDespesa';
 import { TelaDetalheCategoria } from './telas/TelaDetalheCategoria';
 import { TelaMes } from './telas/TelaMes';
 
@@ -53,6 +54,8 @@ export function App() {
             <Route path="/categorias" element={<TelaCategorias />} />
             <Route path="/categorias/nova" element={<TelaCategoria />} />
             <Route path="/categorias/:id" element={<TelaCategoria />} />
+            <Route path="/despesa/nova" element={<TelaDespesa />} />
+            <Route path="/despesa/:id" element={<TelaDespesa />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
