@@ -57,6 +57,22 @@ describe('tela do mês', () => {
     );
   });
 
+  it('não lembra de backup quando as despesas são recentes', async () => {
+    await semear({ categorias: [mercado], despesas: [despesa('a', 1000, '2026-09-10')] });
+    render(<App />);
+    expect(await screen.findByText(/^Gasto/)).toBeInTheDocument();
+    expect(screen.queryByText(/não salva um backup/)).not.toBeInTheDocument();
+  });
+
+  it('lembra de backup quando há despesas antigas sem backup', async () => {
+    await semear({
+      categorias: [mercado],
+      despesas: [despesa('a', 1000, '2026-07-01'), despesa('b', 1000, '2026-09-10')],
+    });
+    render(<App />);
+    expect(await screen.findByText(/não salva um backup/)).toBeInTheDocument();
+  });
+
   it('navega para o mês anterior e abre o detalhe da categoria', async () => {
     const user = userEvent.setup();
     await semear({

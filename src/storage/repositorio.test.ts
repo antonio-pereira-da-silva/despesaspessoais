@@ -39,6 +39,13 @@ describe('repositório', () => {
     expect((await repo.listarDespesasDoMes('2026-12')).map((d) => d.id)).toEqual(['e']);
   });
 
+  it('informa a data da despesa mais antiga', async () => {
+    expect(await repo.dataDaPrimeiraDespesa()).toBeNull();
+    await repo.salvarDespesa(desp('b', '2026-09-01'));
+    await repo.salvarDespesa(desp('a', '2026-07-15'));
+    expect(await repo.dataDaPrimeiraDespesa()).toBe('2026-07-15');
+  });
+
   it('obtém, altera e exclui despesa', async () => {
     await repo.salvarDespesa(desp('a', '2026-09-10'));
     await repo.salvarDespesa({ ...desp('a', '2026-09-10'), valor: 2500 });

@@ -62,6 +62,11 @@ export function criarRepositorio(db: BancoDespesas) {
       return ordenarDespesas(await db.getAllFromIndex('despesas', 'data', faixa));
     },
 
+    async dataDaPrimeiraDespesa(): Promise<string | null> {
+      const cursor = await db.transaction('despesas').store.index('data').openCursor();
+      return cursor?.value.data ?? null;
+    },
+
     obterDespesa(id: string): Promise<Despesa | undefined> {
       return db.get('despesas', id);
     },

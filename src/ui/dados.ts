@@ -35,3 +35,19 @@ export function useDespesasDoMes(mes: Mes): Despesa[] | null {
   }, [repo, mes, chave]);
   return carregado?.chave === chave ? carregado.despesas : null;
 }
+
+/** Data da despesa mais antiga; null se não houver despesas ou enquanto carrega. */
+export function useDataDaPrimeiraDespesa(): string | null {
+  const { repo, versao } = useDados();
+  const [carregado, setCarregado] = useState<{ versao: number; data: string | null } | null>(null);
+  useEffect(() => {
+    let ativo = true;
+    void repo.dataDaPrimeiraDespesa().then((data) => {
+      if (ativo) setCarregado({ versao, data });
+    });
+    return () => {
+      ativo = false;
+    };
+  }, [repo, versao]);
+  return carregado?.versao === versao ? carregado.data : null;
+}

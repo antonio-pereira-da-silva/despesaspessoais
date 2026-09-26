@@ -4,7 +4,7 @@ import { mesAnterior, mesAtual, nomeDoMes, proximoMes } from '../../domain/mes';
 import { resumoDoMes } from '../../domain/orcamento';
 import { BarraProgresso } from '../BarraProgresso';
 import { lerUltimoBackup, precisaLembrarBackup } from '../backupLocal';
-import { useDados, useDespesasDoMes } from '../dados';
+import { useDados, useDataDaPrimeiraDespesa, useDespesasDoMes } from '../dados';
 import { mesDaUrl } from '../parametros';
 import { textoSituacao } from '../situacao';
 
@@ -13,6 +13,7 @@ export function TelaMes() {
   const [params, setParams] = useSearchParams();
   const mes = mesDaUrl(params);
   const despesas = useDespesasDoMes(mes);
+  const primeiraDespesa = useDataDaPrimeiraDespesa();
 
   const cabecalho = (
     <header className="cabecalho-mes">
@@ -47,7 +48,7 @@ export function TelaMes() {
 
   const resumo = resumoDoMes(categorias, limites, despesas, mes);
   const lembrarBackup =
-    mes === mesAtual() && despesas.length > 0 && precisaLembrarBackup(lerUltimoBackup());
+    mes === mesAtual() && precisaLembrarBackup(lerUltimoBackup(), primeiraDespesa);
 
   return (
     <>
