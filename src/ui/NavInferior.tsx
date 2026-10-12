@@ -2,6 +2,7 @@ import { NavLink } from 'react-router';
 
 const ITENS = [
   { para: '/', rotulo: 'Mês', icone: '📅' },
+  { para: '/caixa', rotulo: 'Caixa', icone: '📊' },
   { para: '/categorias', rotulo: 'Categorias', icone: '🏷️' },
   { para: '/ajustes', rotulo: 'Ajustes', icone: '⚙️' },
 ];

@@ -7,6 +7,7 @@ export async function semear(dados: Partial<DadosCompletos>): Promise<void> {
     categorias: dados.categorias ?? [],
     limites: dados.limites ?? [],
     despesas: dados.despesas ?? [],
+    entradas: dados.entradas ?? [],
   });
   db.close();
 }

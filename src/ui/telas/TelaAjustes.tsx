@@ -119,8 +119,9 @@ export function TelaAjustes() {
           <div className="confirmacao">
             <p>
               Substituir todos os dados por este backup com{' '}
-              {plural(pendente.categorias.length, 'categoria', 'categorias')} e{' '}
-              {plural(pendente.despesas.length, 'despesa', 'despesas')}?
+              {plural(pendente.categorias.length, 'categoria', 'categorias')},{' '}
+              {plural(pendente.despesas.length, 'despesa', 'despesas')} e{' '}
+              {plural(pendente.entradas.length, 'entrada', 'entradas')}?
             </p>
             <div className="acoes">
               <button type="button" className="botao botao--perigo" onClick={confirmarImportacao}>

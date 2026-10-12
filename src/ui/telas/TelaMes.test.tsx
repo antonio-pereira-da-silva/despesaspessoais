@@ -57,6 +57,13 @@ describe('tela do mês', () => {
     );
   });
 
+  it('mostra saldo negativo em vermelho', async () => {
+    await semear({ categorias: [mercado], despesas: [despesa('a', 1000, '2026-09-10')] });
+    render(<App />);
+    const linha = await screen.findByText(/^Entradas/);
+    expect(linha.querySelector('.valor-negativo')).toHaveTextContent(/R\$\s10,00/);
+  });
+
   it('não lembra de backup quando as despesas são recentes', async () => {
     await semear({ categorias: [mercado], despesas: [despesa('a', 1000, '2026-09-10')] });
     render(<App />);

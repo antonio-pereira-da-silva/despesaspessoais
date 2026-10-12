@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest';
 import {
   ehDataValida,
   ehMesValido,
+  formatarDataCurta,
   formatarDiaMes,
   hojeISO,
   mesAnterior,
   mesAtual,
   mesDe,
+  nomeCurtoDoMes,
   nomeDoMes,
   proximoMes,
   ultimoDiaDoMes,
@@ -49,5 +51,11 @@ describe('mes', () => {
 
   it('formata dia/mês', () => {
     expect(formatarDiaMes('2026-09-07')).toBe('07/09');
+  });
+
+  it('formata mês e data curtos', () => {
+    expect(nomeCurtoDoMes('2026-09')).toBe('set/26');
+    expect(nomeCurtoDoMes('2027-01')).toBe('jan/27');
+    expect(formatarDataCurta('2026-09-05')).toBe('05/09/26');
   });
 });

@@ -39,7 +39,7 @@ describe('ajustes', () => {
     expect(await screen.findByText('Backup exportado.')).toBeInTheDocument();
     expect(clique).toHaveBeenCalledOnce();
     const conteudo = JSON.parse(await lerBlob(blobs[0]));
-    expect(conteudo).toMatchObject({ versao: 1, categorias: [mercado] });
+    expect(conteudo).toMatchObject({ versao: 2, categorias: [mercado] });
     expect(screen.getByText(/Último backup:/)).toBeInTheDocument();
   });
 
@@ -49,13 +49,14 @@ describe('ajustes', () => {
       categorias: [{ id: 'x', nome: 'Lazer', cor: '#e76f51', arquivada: false }],
       limites: [],
       despesas: [],
+      entradas: [],
     });
     render(<App />);
     const arquivo = new File([JSON.stringify(backup)], 'backup.json', {
       type: 'application/json',
     });
     await user.upload(await screen.findByLabelText('Escolher arquivo de backup'), arquivo);
-    expect(await screen.findByText(/1 categoria e 0 despesas/)).toBeInTheDocument();
+    expect(await screen.findByText(/1 categoria, 0 despesas e 0 entradas/)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Substituir dados' }));
     expect(await screen.findByText('Backup importado.')).toBeInTheDocument();
     await user.click(screen.getByRole('link', { name: 'Categorias' }));
