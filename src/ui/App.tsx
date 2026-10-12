@@ -14,14 +14,20 @@ import { TelaDetalheCategoria } from './telas/TelaDetalheCategoria';
 import { TelaEntrada } from './telas/TelaEntrada';
 import { TelaMes } from './telas/TelaMes';
 
-type Estado = { tipo: 'carregando' } | { tipo: 'erro' } | { tipo: 'pronto'; repo: Repositorio };
+type Estado =
+  | { tipo: 'carregando' }
+  | { tipo: 'bloqueado' }
+  | { tipo: 'erro' }
+  | { tipo: 'pronto'; repo: Repositorio };
 
 export function App() {
   const [estado, setEstado] = useState<Estado>({ tipo: 'carregando' });
 
   useEffect(() => {
     let ativo = true;
-    abrirBanco().then(
+    abrirBanco(() => {
+      if (ativo) setEstado({ tipo: 'bloqueado' });
+    }).then(
       (db) => {
         if (ativo) setEstado({ tipo: 'pronto', repo: criarRepositorio(db) });
       },
@@ -36,6 +42,17 @@ export function App() {
   }, []);
 
   if (estado.tipo === 'carregando') return <p className="aviso">Carregando…</p>;
+  if (estado.tipo === 'bloqueado') {
+    return (
+      <main className="conteudo">
+        <h1>Atualizando o app</h1>
+        <p>
+          Feche as outras abas ou janelas deste app para concluir a atualização. Seus dados estão
+          guardados.
+        </p>
+      </main>
+    );
+  }
   if (estado.tipo === 'erro') {
     return (
       <main className="conteudo">

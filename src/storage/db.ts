@@ -12,8 +12,12 @@ export type BancoDespesas = IDBPDatabase<EsquemaDespesas>;
 
 export const NOME_BANCO = 'despesas-pessoais';
 
-export function abrirBanco(): Promise<BancoDespesas> {
+/** `aoBloquear` é chamado se outra aba com a versão antiga impede a atualização do banco. */
+export function abrirBanco(aoBloquear?: () => void): Promise<BancoDespesas> {
   return openDB<EsquemaDespesas>(NOME_BANCO, 2, {
+    blocked() {
+      aoBloquear?.();
+    },
     upgrade(db, versaoAntiga) {
       if (versaoAntiga < 1) {
         db.createObjectStore('categorias', { keyPath: 'id' });
