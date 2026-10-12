@@ -44,3 +44,12 @@ export interface ResumoMes {
   totalGasto: Centavos;
   totalLimites: Centavos;
 }
+
+export interface Entrada {
+  id: string;
+  valor: Centavos;
+  /** Data no formato "AAAA-MM-DD". */
+  data: string;
+  descricao?: string;
+  criadaEm: string;
+}

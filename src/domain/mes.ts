@@ -71,3 +71,12 @@ export function formatarDiaMes(data: string): string {
 export function formatarDataCompleta(iso: string): string {
   return new Date(iso).toLocaleDateString('pt-BR');
 }
+
+export function nomeCurtoDoMes(mes: Mes): string {
+  const [ano, numero] = partes(mes);
+  return `${NOMES[numero - 1].slice(0, 3)}/${doisDigitos(ano % 100)}`;
+}
+
+export function formatarDataCurta(data: string): string {
+  return `${data.slice(8, 10)}/${data.slice(5, 7)}/${data.slice(2, 4)}`;
+}
