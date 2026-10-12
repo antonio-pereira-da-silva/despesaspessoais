@@ -1,4 +1,3 @@
-import { useId } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { extratoDoPeriodo, resumoPorMes, type Extrato, type ResumoCaixa } from '../../domain/caixa';
 import { formatarBRL } from '../../domain/dinheiro';
@@ -14,6 +13,7 @@ import {
   ultimoDiaDoMes,
 } from '../../domain/mes';
 import { BlocoTotais } from '../BlocoTotais';
+import { CampoFiltro } from '../CampoFiltro';
 import { Dinheiro } from '../Dinheiro';
 import { useDados, useLancamentosDoPeriodo } from '../dados';
 import { dataDoParametro, mesDoParametro } from '../parametros';
@@ -75,7 +75,6 @@ function seisMesesAtras(): string {
 
 function CaixaPorMes() {
   const [params, definir] = useParametros();
-  const ids = { de: useId(), ate: useId() };
   const de = mesDoParametro(params, 'de', seisMesesAtras());
   const ate = mesDoParametro(params, 'ate', mesAtual());
   const [primeiro, ultimo] = de <= ate ? [de, ate] : [ate, de];
@@ -84,28 +83,20 @@ function CaixaPorMes() {
   return (
     <>
       <div className="filtros">
-        <div className="campo">
-          <label htmlFor={ids.de}>De</label>
-          <input
-            id={ids.de}
-            type="month"
-            value={de}
-            onChange={(e) => {
-              if (ehMesValido(e.target.value)) definir({ de: e.target.value });
-            }}
-          />
-        </div>
-        <div className="campo">
-          <label htmlFor={ids.ate}>Até</label>
-          <input
-            id={ids.ate}
-            type="month"
-            value={ate}
-            onChange={(e) => {
-              if (ehMesValido(e.target.value)) definir({ ate: e.target.value });
-            }}
-          />
-        </div>
+        <CampoFiltro
+          rotulo="De"
+          tipo="month"
+          valor={de}
+          valido={ehMesValido}
+          aoMudar={(v) => definir({ de: v })}
+        />
+        <CampoFiltro
+          rotulo="Até"
+          tipo="month"
+          valor={ate}
+          valido={ehMesValido}
+          aoMudar={(v) => definir({ ate: v })}
+        />
       </div>
       {!lancamentos ? (
         <p className="aviso">Carregando…</p>
@@ -165,7 +156,6 @@ function TabelaMeses({ resumo }: { resumo: ResumoCaixa }) {
 function CaixaPorPeriodo() {
   const [params, definir] = useParametros();
   const { categorias } = useDados();
-  const ids = { inicio: useId(), fim: useId() };
   const inicio = dataDoParametro(params, 'inicio', `${mesAtual()}-01`);
   const fim = dataDoParametro(params, 'fim', hojeISO());
   const lancamentos = useLancamentosDoPeriodo(inicio, fim);
@@ -174,28 +164,20 @@ function CaixaPorPeriodo() {
   return (
     <>
       <div className="filtros">
-        <div className="campo">
-          <label htmlFor={ids.inicio}>De</label>
-          <input
-            id={ids.inicio}
-            type="date"
-            value={inicio}
-            onChange={(e) => {
-              if (ehDataValida(e.target.value)) definir({ inicio: e.target.value });
-            }}
-          />
-        </div>
-        <div className="campo">
-          <label htmlFor={ids.fim}>Até</label>
-          <input
-            id={ids.fim}
-            type="date"
-            value={fim}
-            onChange={(e) => {
-              if (ehDataValida(e.target.value)) definir({ fim: e.target.value });
-            }}
-          />
-        </div>
+        <CampoFiltro
+          rotulo="De"
+          tipo="date"
+          valor={inicio}
+          valido={ehDataValida}
+          aoMudar={(v) => definir({ inicio: v })}
+        />
+        <CampoFiltro
+          rotulo="Até"
+          tipo="date"
+          valor={fim}
+          valido={ehDataValida}
+          aoMudar={(v) => definir({ fim: v })}
+        />
       </div>
       {!lancamentos ? (
         <p className="aviso">Carregando…</p>
