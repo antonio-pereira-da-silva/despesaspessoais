@@ -54,6 +54,7 @@ function FormDespesa({ original }: { original?: Despesa }) {
   const [descricao, setDescricao] = useState(original?.descricao ?? '');
   const [erro, setErro] = useState<string | null>(null);
   const [salvando, setSalvando] = useState(false);
+  const [excluindo, setExcluindo] = useState(false);
 
   const opcoes = categorias
     .filter((c) => !c.arquivada || c.id === original?.categoriaId)
@@ -110,9 +111,16 @@ function FormDespesa({ original }: { original?: Despesa }) {
 
   async function excluir() {
     if (!original || !window.confirm('Excluir esta despesa?')) return;
-    await repo.excluirDespesa(original.id);
-    await aposAlterar();
-    voltar(destino);
+    setExcluindo(true);
+    setErro(null);
+    try {
+      await repo.excluirDespesa(original.id);
+      await aposAlterar();
+      voltar(destino);
+    } catch {
+      setErro('Não foi possível excluir. Tente novamente.');
+      setExcluindo(false);
+    }
   }
 
   return (
@@ -173,11 +181,16 @@ function FormDespesa({ original }: { original?: Despesa }) {
           {erro}
         </p>
       )}
-      <button type="submit" className="botao botao--primario" disabled={salvando}>
+      <button type="submit" className="botao botao--primario" disabled={salvando || excluindo}>
         Salvar
       </button>
       {original && (
-        <button type="button" className="botao botao--perigo" onClick={excluir}>
+        <button
+          type="button"
+          className="botao botao--perigo"
+          onClick={excluir}
+          disabled={salvando || excluindo}
+        >
           Excluir despesa
         </button>
       )}

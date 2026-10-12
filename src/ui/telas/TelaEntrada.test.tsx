@@ -91,6 +91,21 @@ describe('entrada', () => {
     });
   });
 
+  it('avisa quando não consegue excluir e permite tentar de novo', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    await semear({ entradas: [entrada] });
+    const apagar = vi.spyOn(IDBObjectStore.prototype, 'delete').mockImplementation(() => {
+      throw new Error('armazenamento indisponível');
+    });
+    window.location.hash = '#/entrada/e';
+    render(<App />);
+    await user.click(await screen.findByRole('button', { name: 'Excluir entrada' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Não foi possível excluir');
+    expect(screen.getByRole('button', { name: 'Excluir entrada' })).toBeEnabled();
+    apagar.mockRestore();
+  });
+
   it('mostra aviso para entrada inexistente', async () => {
     window.location.hash = '#/entrada/nao-existe';
     render(<App />);
