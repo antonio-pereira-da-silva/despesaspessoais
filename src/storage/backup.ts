@@ -1,9 +1,9 @@
 import { ehDataValida, ehMesValido } from '../domain/mes';
-import type { Categoria, Despesa, Limite } from '../domain/tipos';
+import type { Categoria, Despesa, Entrada, Limite } from '../domain/tipos';
 import type { DadosCompletos } from './repositorio';
 
 export interface DadosBackup extends DadosCompletos {
-  versao: 1;
+  versao: 2;
   exportadoEm: string;
 }
 
@@ -26,7 +26,7 @@ function lista(json: Registro, campo: string): Registro[] {
 }
 
 export function montarBackup(dados: DadosCompletos, agora: Date = new Date()): DadosBackup {
-  return { versao: 1, exportadoEm: agora.toISOString(), ...dados };
+  return { versao: 2, exportadoEm: agora.toISOString(), ...dados };
 }
 
 export function lerBackup(texto: string): DadosBackup {
@@ -41,7 +41,9 @@ export function lerBackup(texto: string): DadosBackup {
 
 export function validarBackup(json: unknown): DadosBackup {
   if (!ehObjeto(json)) throw new ErroBackup('O arquivo não é um backup válido.');
-  if (json.versao !== 1) throw new ErroBackup('Versão de backup não suportada.');
+  if (json.versao !== 1 && json.versao !== 2) {
+    throw new ErroBackup('Versão de backup não suportada.');
+  }
 
   const categorias = lista(json, 'categorias').map((c, i): Categoria => {
     if (!ehTexto(c.id) || !ehTexto(c.nome) || !ehTexto(c.cor) || typeof c.arquivada !== 'boolean') {
@@ -90,5 +92,24 @@ export function validarBackup(json: unknown): DadosBackup {
   });
 
   const exportadoEm = typeof json.exportadoEm === 'string' ? json.exportadoEm : '';
-  return { versao: 1, exportadoEm, categorias, limites, despesas };
+  const entradas =
+    json.versao === 1
+      ? []
+      : lista(json, 'entradas').map((e, i): Entrada => {
+          if (
+            !ehTexto(e.id) ||
+            !ehInteiro(e.valor, 1) ||
+            !ehTexto(e.data) ||
+            !ehDataValida(e.data) ||
+            !ehTexto(e.criadaEm) ||
+            (e.descricao !== undefined && typeof e.descricao !== 'string')
+          ) {
+            throw new ErroBackup(`Backup inválido: entrada ${i + 1} está incorreta.`);
+          }
+          const entrada: Entrada = { id: e.id, valor: e.valor, data: e.data, criadaEm: e.criadaEm };
+          if (typeof e.descricao === 'string') entrada.descricao = e.descricao;
+          return entrada;
+        });
+
+  return { versao: 2, exportadoEm, categorias, limites, despesas, entradas };
 }
