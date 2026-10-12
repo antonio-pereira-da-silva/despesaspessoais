@@ -58,7 +58,7 @@ function DetalheMes({ mes }: { mes: Mes }) {
               <li key={e.id}>
                 <Link to={`/entrada/${e.id}`} className="linha-despesa">
                   <span className="linha-despesa__data">{formatarDiaMes(e.data)}</span>
-                  <span className="linha-despesa__descricao">{e.descricao ?? 'Entrada'}</span>
+                  <span className="linha-despesa__descricao">{e.descricao || 'Entrada'}</span>
                   <span className="linha-despesa__valor valor-entrada">{formatarBRL(e.valor)}</span>
                 </Link>
               </li>

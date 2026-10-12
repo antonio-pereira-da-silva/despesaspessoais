@@ -73,6 +73,14 @@ describe('caixa', () => {
     );
   });
 
+  it('por mês: intervalo longo demais mostra só os 120 meses mais recentes, com aviso', async () => {
+    window.location.hash = '#/caixa?modo=mes&de=0001-01&ate=2026-09';
+    render(<App />);
+    const linhas = within(await screen.findByRole('table')).getAllByRole('row');
+    expect(linhas).toHaveLength(122);
+    expect(screen.getByText(/últimos 120 meses/)).toBeInTheDocument();
+  });
+
   it('por período: extrato com saldo corrente e totais', async () => {
     const user = userEvent.setup();
     window.location.hash = '#/caixa';
@@ -83,7 +91,7 @@ describe('caixa', () => {
       '01/09Entrada+ R$ 1.000,00Saldo R$ 1.000,00',
       '03/09Feira− R$ 300,00Saldo R$ 700,00',
     ]);
-    expect(normalizar(screen.getByLabelText('Totais do período').textContent)).toBe(
+    expect(normalizar(screen.getByRole('region', { name: 'Totais do período' }).textContent)).toBe(
       'EntradasR$ 1.000,00SaídasR$ 300,00SaldoR$ 700,00',
     );
     expect(within(itens[1]).getByRole('link')).toHaveAttribute('href', '#/despesa/d2');

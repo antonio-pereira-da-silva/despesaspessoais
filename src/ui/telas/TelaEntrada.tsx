@@ -50,6 +50,7 @@ function FormEntrada({ original }: { original?: Entrada }) {
   const [descricao, setDescricao] = useState(original?.descricao ?? '');
   const [erro, setErro] = useState<string | null>(null);
   const [salvando, setSalvando] = useState(false);
+  const [excluindo, setExcluindo] = useState(false);
   const destino = `/?mes=${original ? mesDe(original.data) : mes}`;
 
   async function salvar(evento: FormEvent) {
@@ -82,9 +83,16 @@ function FormEntrada({ original }: { original?: Entrada }) {
 
   async function excluir() {
     if (!original || !window.confirm('Excluir esta entrada?')) return;
-    await repo.excluirEntrada(original.id);
-    await aposAlterar();
-    voltar(destino);
+    setExcluindo(true);
+    setErro(null);
+    try {
+      await repo.excluirEntrada(original.id);
+      await aposAlterar();
+      voltar(destino);
+    } catch {
+      setErro('Não foi possível excluir. Tente novamente.');
+      setExcluindo(false);
+    }
   }
 
   return (
@@ -129,11 +137,16 @@ function FormEntrada({ original }: { original?: Entrada }) {
           {erro}
         </p>
       )}
-      <button type="submit" className="botao botao--primario" disabled={salvando}>
+      <button type="submit" className="botao botao--primario" disabled={salvando || excluindo}>
         Salvar
       </button>
       {original && (
-        <button type="button" className="botao botao--perigo" onClick={excluir}>
+        <button
+          type="button"
+          className="botao botao--perigo"
+          onClick={excluir}
+          disabled={salvando || excluindo}
+        >
           Excluir entrada
         </button>
       )}

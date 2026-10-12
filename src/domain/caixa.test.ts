@@ -34,6 +34,12 @@ describe('mesesDoIntervalo', () => {
   it('troca os extremos quando invertidos', () => {
     expect(mesesDoIntervalo('2026-03', '2026-01')).toEqual(['2026-01', '2026-02', '2026-03']);
   });
+  it('limita a 120 meses, mantendo os mais recentes', () => {
+    const meses = mesesDoIntervalo('0001-01', '2026-09');
+    expect(meses).toHaveLength(120);
+    expect(meses[0]).toBe('2016-10');
+    expect(meses.at(-1)).toBe('2026-09');
+  });
 });
 
 describe('resumoPorMes', () => {
@@ -58,6 +64,8 @@ describe('resumoPorMes', () => {
       { mes: '2026-09', entradas: 100000, saidas: 0, saldo: 100000, acumulado: 450000 },
     ]);
     expect(r.totais).toEqual({ entradas: 600000, saidas: 150000, saldo: 450000 });
+    expect(r.limitado).toBe(false);
+    expect(resumoPorMes([], [], '2000-01', '2026-09').limitado).toBe(true);
   });
 });
 

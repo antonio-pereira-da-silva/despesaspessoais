@@ -54,8 +54,29 @@ describe('detalhe do mês no caixa', () => {
       'MercadoR$ 300,00',
       'LazerR$ 50,00',
     ]);
-    expect(normalizar(screen.getByLabelText('Totais do mês').textContent)).toBe(
+    expect(normalizar(screen.getByRole('region', { name: 'Totais do mês' }).textContent)).toBe(
       'EntradasR$ 1.000,00SaídasR$ 350,00SaldoR$ 650,00',
+    );
+  });
+
+  it('mostra "Entrada" quando a descrição está vazia', async () => {
+    await semear({
+      entradas: [
+        {
+          id: 'e',
+          valor: 100,
+          data: '2026-09-02',
+          descricao: '',
+          criadaEm: '2026-09-02T08:00:00.000Z',
+        },
+      ],
+    });
+    window.location.hash = '#/caixa/mes/2026-09';
+    render(<App />);
+    const entradas = await screen.findByRole('region', { name: 'Entradas' });
+    expect(within(entradas).getByRole('link', { name: /^02\/09\s*Entrada/ })).toHaveAttribute(
+      'href',
+      '#/entrada/e',
     );
   });
 

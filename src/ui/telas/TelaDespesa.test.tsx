@@ -120,6 +120,32 @@ describe('despesa', () => {
     expect(await screen.findByText('Feira')).toBeInTheDocument();
   });
 
+  it('avisa quando não consegue excluir e permite tentar de novo', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    await semear({
+      categorias: [{ id: 'm', nome: 'Mercado', cor: '#2a9d8f', arquivada: false }],
+      despesas: [
+        {
+          id: 'd',
+          valor: 5000,
+          categoriaId: 'm',
+          data: '2026-09-10',
+          criadaEm: '2026-09-10T12:00:00.000Z',
+        },
+      ],
+    });
+    const apagar = vi.spyOn(IDBObjectStore.prototype, 'delete').mockImplementation(() => {
+      throw new Error('armazenamento indisponível');
+    });
+    window.location.hash = '#/despesa/d';
+    render(<App />);
+    await user.click(await screen.findByRole('button', { name: 'Excluir despesa' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Não foi possível excluir');
+    expect(screen.getByRole('button', { name: 'Excluir despesa' })).toBeEnabled();
+    apagar.mockRestore();
+  });
+
   it('mostra aviso para despesa inexistente', async () => {
     window.location.hash = '#/despesa/nao-existe';
     render(<App />);
