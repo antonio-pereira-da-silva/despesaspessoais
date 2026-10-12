@@ -6,6 +6,7 @@ import { DadosProvider } from './DadosProvider';
 import { NavInferior } from './NavInferior';
 import { TelaAjustes } from './telas/TelaAjustes';
 import { TelaCaixa } from './telas/TelaCaixa';
+import { TelaCaixaMes } from './telas/TelaCaixaMes';
 import { TelaCategoria } from './telas/TelaCategoria';
 import { TelaCategorias } from './telas/TelaCategorias';
 import { TelaDespesa } from './telas/TelaDespesa';
@@ -55,6 +56,7 @@ export function App() {
             <Route path="/" element={<TelaMes />} />
             <Route path="/categoria/:id" element={<TelaDetalheCategoria />} />
             <Route path="/caixa" element={<TelaCaixa />} />
+            <Route path="/caixa/mes/:mes" element={<TelaCaixaMes />} />
             <Route path="/categorias" element={<TelaCategorias />} />
             <Route path="/categorias/nova" element={<TelaCategoria />} />
             <Route path="/categorias/:id" element={<TelaCategoria />} />
