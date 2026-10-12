@@ -5,6 +5,7 @@ import { criarRepositorio, type Repositorio } from '../storage/repositorio';
 import { DadosProvider } from './DadosProvider';
 import { NavInferior } from './NavInferior';
 import { TelaAjustes } from './telas/TelaAjustes';
+import { TelaCaixa } from './telas/TelaCaixa';
 import { TelaCategoria } from './telas/TelaCategoria';
 import { TelaCategorias } from './telas/TelaCategorias';
 import { TelaDespesa } from './telas/TelaDespesa';
@@ -53,6 +54,7 @@ export function App() {
           <Routes>
             <Route path="/" element={<TelaMes />} />
             <Route path="/categoria/:id" element={<TelaDetalheCategoria />} />
+            <Route path="/caixa" element={<TelaCaixa />} />
             <Route path="/categorias" element={<TelaCategorias />} />
             <Route path="/categorias/nova" element={<TelaCategoria />} />
             <Route path="/categorias/:id" element={<TelaCategoria />} />

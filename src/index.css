@@ -477,6 +477,88 @@ input:not([type='file']) {
   background: color-mix(in srgb, var(--estourado) 10%, var(--superficie));
 }
 
+.abas {
+  margin-bottom: 16px;
+}
+
+.filtros {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.tabela-rolagem {
+  overflow-x: auto;
+  margin-bottom: 16px;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  background: var(--superficie);
+}
+
+.tabela-caixa {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabela-caixa th,
+.tabela-caixa td {
+  padding: 10px 8px;
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--borda);
+}
+
+.tabela-caixa th[scope='row'],
+.tabela-caixa thead th:first-child {
+  text-align: left;
+}
+
+.tabela-caixa thead th {
+  color: var(--texto-suave);
+  font-weight: 600;
+}
+
+.tabela-caixa tfoot th,
+.tabela-caixa tfoot td {
+  font-weight: 700;
+  border-bottom: 0;
+}
+
+.extrato__valores {
+  display: grid;
+  justify-items: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.extrato__valores small {
+  color: var(--texto-suave);
+}
+
+.totais {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 14px;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  background: var(--superficie);
+}
+
+.totais dt {
+  color: var(--texto-suave);
+  font-size: 0.85rem;
+}
+
+.totais dd {
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 .oculto {
   position: absolute;
   width: 1px;
