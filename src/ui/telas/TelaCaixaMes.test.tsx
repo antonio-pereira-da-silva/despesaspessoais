@@ -54,7 +54,7 @@ describe('detalhe do mês no caixa', () => {
       'MercadoR$ 300,00',
       'LazerR$ 50,00',
     ]);
-    expect(normalizar(screen.getByLabelText('Totais do mês').textContent)).toBe(
+    expect(normalizar(screen.getByRole('region', { name: 'Totais do mês' }).textContent)).toBe(
       'EntradasR$ 1.000,00SaídasR$ 350,00SaldoR$ 650,00',
     );
   });

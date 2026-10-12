@@ -91,7 +91,7 @@ describe('caixa', () => {
       '01/09Entrada+ R$ 1.000,00Saldo R$ 1.000,00',
       '03/09Feira− R$ 300,00Saldo R$ 700,00',
     ]);
-    expect(normalizar(screen.getByLabelText('Totais do período').textContent)).toBe(
+    expect(normalizar(screen.getByRole('region', { name: 'Totais do período' }).textContent)).toBe(
       'EntradasR$ 1.000,00SaídasR$ 300,00SaldoR$ 700,00',
     );
     expect(within(itens[1]).getByRole('link')).toHaveAttribute('href', '#/despesa/d2');
