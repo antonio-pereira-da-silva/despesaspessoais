@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import type { Categoria, Despesa, Limite, Mes } from '../domain/tipos';
+import type { Categoria, Despesa, Entrada, Limite, Mes } from '../domain/tipos';
 import type { Repositorio } from '../storage/repositorio';
 
 export interface ValorDados {
@@ -50,4 +50,29 @@ export function useDataDaPrimeiraDespesa(): string | null {
     };
   }, [repo, versao]);
   return carregado?.versao === versao ? carregado.data : null;
+}
+
+export interface Lancamentos {
+  entradas: Entrada[];
+  despesas: Despesa[];
+}
+
+/** Entradas e despesas entre as datas (inclusive); null enquanto carrega. */
+export function useLancamentosDoPeriodo(inicio: string, fim: string): Lancamentos | null {
+  const { repo, versao } = useDados();
+  const chave = `${inicio}#${fim}#${versao}`;
+  const [carregado, setCarregado] = useState<{ chave: string; dados: Lancamentos } | null>(null);
+  useEffect(() => {
+    let ativo = true;
+    void Promise.all([
+      repo.listarEntradasDoPeriodo(inicio, fim),
+      repo.listarDespesasDoPeriodo(inicio, fim),
+    ]).then(([entradas, despesas]) => {
+      if (ativo) setCarregado({ chave, dados: { entradas, despesas } });
+    });
+    return () => {
+      ativo = false;
+    };
+  }, [repo, inicio, fim, chave]);
+  return carregado?.chave === chave ? carregado.dados : null;
 }

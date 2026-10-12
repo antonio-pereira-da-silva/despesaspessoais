@@ -9,6 +9,7 @@ import { TelaCategoria } from './telas/TelaCategoria';
 import { TelaCategorias } from './telas/TelaCategorias';
 import { TelaDespesa } from './telas/TelaDespesa';
 import { TelaDetalheCategoria } from './telas/TelaDetalheCategoria';
+import { TelaEntrada } from './telas/TelaEntrada';
 import { TelaMes } from './telas/TelaMes';
 
 type Estado = { tipo: 'carregando' } | { tipo: 'erro' } | { tipo: 'pronto'; repo: Repositorio };
@@ -57,6 +58,8 @@ export function App() {
             <Route path="/categorias/:id" element={<TelaCategoria />} />
             <Route path="/despesa/nova" element={<TelaDespesa />} />
             <Route path="/despesa/:id" element={<TelaDespesa />} />
+            <Route path="/entrada/nova" element={<TelaEntrada />} />
+            <Route path="/entrada/:id" element={<TelaEntrada />} />
             <Route path="/ajustes" element={<TelaAjustes />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

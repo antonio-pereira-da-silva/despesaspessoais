@@ -1,10 +1,11 @@
 import { Link, useSearchParams } from 'react-router';
 import { formatarBRL } from '../../domain/dinheiro';
-import { mesAnterior, mesAtual, nomeDoMes, proximoMes } from '../../domain/mes';
+import { mesAnterior, mesAtual, nomeDoMes, proximoMes, ultimoDiaDoMes } from '../../domain/mes';
 import { resumoDoMes } from '../../domain/orcamento';
 import { BarraProgresso } from '../BarraProgresso';
+import { Dinheiro } from '../Dinheiro';
 import { lerUltimoBackup, precisaLembrarBackup } from '../backupLocal';
-import { useDados, useDataDaPrimeiraDespesa, useDespesasDoMes } from '../dados';
+import { useDados, useDataDaPrimeiraDespesa, useLancamentosDoPeriodo } from '../dados';
 import { mesDaUrl } from '../parametros';
 import { textoSituacao } from '../situacao';
 
@@ -12,7 +13,7 @@ export function TelaMes() {
   const { categorias, limites } = useDados();
   const [params, setParams] = useSearchParams();
   const mes = mesDaUrl(params);
-  const despesas = useDespesasDoMes(mes);
+  const lancamentos = useLancamentosDoPeriodo(`${mes}-01`, ultimoDiaDoMes(mes));
   const primeiraDespesa = useDataDaPrimeiraDespesa();
 
   const cabecalho = (
@@ -37,7 +38,7 @@ export function TelaMes() {
     </header>
   );
 
-  if (!despesas) {
+  if (!lancamentos) {
     return (
       <>
         {cabecalho}
@@ -46,7 +47,8 @@ export function TelaMes() {
     );
   }
 
-  const resumo = resumoDoMes(categorias, limites, despesas, mes);
+  const resumo = resumoDoMes(categorias, limites, lancamentos.despesas, mes);
+  const totalEntradas = lancamentos.entradas.reduce((soma, e) => soma + e.valor, 0);
   const lembrarBackup =
     mes === mesAtual() && precisaLembrarBackup(lerUltimoBackup(), primeiraDespesa);
 
@@ -58,6 +60,13 @@ export function TelaMes() {
           Faz tempo que você não salva um backup. <Link to="/ajustes">Fazer backup</Link>
         </p>
       )}
+      <p className="caixa-mes">
+        Entradas <strong>{formatarBRL(totalEntradas)}</strong> · Saldo{' '}
+        <strong>
+          <Dinheiro valor={totalEntradas - resumo.totalGasto} />
+        </strong>{' '}
+        <Link to={`/entrada/nova?mes=${mes}`}>+ Entrada</Link>
+      </p>
       {resumo.categorias.length === 0 ? (
         <p className="aviso">
           Nenhuma categoria ainda. <Link to="/categorias">Crie suas categorias</Link> para começar.

@@ -128,6 +128,23 @@ h2 {
   font-size: 1.2rem;
 }
 
+.caixa-mes {
+  margin: 0 0 12px;
+  color: var(--texto-suave);
+}
+
+.caixa-mes strong {
+  color: var(--texto);
+}
+
+.valor-negativo {
+  color: var(--estourado);
+}
+
+.valor-entrada {
+  color: var(--ok);
+}
+
 .lembrete {
   padding: 10px 12px;
   border-radius: var(--raio);
