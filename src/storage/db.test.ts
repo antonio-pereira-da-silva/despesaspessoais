@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { abrirBanco, NOME_BANCO } from './db';
 
 describe('banco', () => {
-  it('migra da versão 1 sem perder despesas e cria o store de entradas', async () => {
+  it('migra da versão 1 sem perder dados e cria o store de entradas', async () => {
     const antigo = await openDB(NOME_BANCO, 1, {
       upgrade(db) {
         db.createObjectStore('categorias', { keyPath: 'id' });
@@ -23,11 +23,21 @@ describe('banco', () => {
       data: '2026-09-01',
       criadaEm: '2026-09-01T10:00:00.000Z',
     });
+    await antigo.put('categorias', { id: 'm', nome: 'Mercado', cor: '#2a9d8f', arquivada: false });
+    await antigo.put('limites', {
+      id: 'l',
+      categoriaId: 'm',
+      valor: 80000,
+      vigenteDesde: '2026-09',
+    });
     antigo.close();
 
     const db = await abrirBanco();
     expect(db.version).toBe(2);
     expect(await db.getAll('despesas')).toHaveLength(1);
+    expect(await db.getAll('categorias')).toHaveLength(1);
+    expect(await db.getAll('limites')).toHaveLength(1);
+    expect(await db.getAllFromIndex('limites', 'categoriaId', 'm')).toHaveLength(1);
     expect(await db.getAll('entradas')).toEqual([]);
     db.close();
   });

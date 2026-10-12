@@ -59,6 +59,27 @@ describe('detalhe do mês no caixa', () => {
     );
   });
 
+  it('mostra "Entrada" quando a descrição está vazia', async () => {
+    await semear({
+      entradas: [
+        {
+          id: 'e',
+          valor: 100,
+          data: '2026-09-02',
+          descricao: '',
+          criadaEm: '2026-09-02T08:00:00.000Z',
+        },
+      ],
+    });
+    window.location.hash = '#/caixa/mes/2026-09';
+    render(<App />);
+    const entradas = await screen.findByRole('region', { name: 'Entradas' });
+    expect(within(entradas).getByRole('link', { name: /^02\/09\s*Entrada/ })).toHaveAttribute(
+      'href',
+      '#/entrada/e',
+    );
+  });
+
   it('avisa quando o mês não tem entradas', async () => {
     window.location.hash = '#/caixa/mes/2026-08';
     render(<App />);
