@@ -137,6 +137,11 @@ h2 {
   color: var(--texto);
 }
 
+.caixa-mes strong,
+.caixa-mes a {
+  white-space: nowrap;
+}
+
 .valor-negativo {
   color: var(--estourado);
 }
@@ -158,6 +163,7 @@ h2 {
   margin: 0 0 16px;
   padding: 0;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
 }
 
@@ -483,9 +489,14 @@ input:not([type='file']) {
 
 .filtros {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 16px;
+}
+
+.filtros input {
+  min-width: 0;
+  padding-inline: 8px;
 }
 
 .tabela-rolagem {
@@ -528,8 +539,10 @@ input:not([type='file']) {
 }
 
 .extrato__valores {
+  flex: none;
   display: grid;
   justify-items: end;
+  white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 
@@ -539,7 +552,8 @@ input:not([type='file']) {
 
 .totais {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, auto);
+  justify-content: space-between;
   gap: 8px;
   margin: 0 0 16px;
   padding: 14px;
@@ -556,6 +570,7 @@ input:not([type='file']) {
 .totais dd {
   margin: 0;
   font-weight: 700;
+  white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 
