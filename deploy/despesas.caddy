@@ -1,0 +1,19 @@
+# Despesas Pessoais no Caddy do SGAF. Fica em /opt/sgaf/caddy-extra/despesas.caddy no servidor;
+# os arquivos do site ficam em /opt/sgaf/caddy-extra/despesas/ (copiados por deploy/deploy.sh).
+despesas.pbrasilautomotiva.com.br {
+	encode gzip
+	root * /etc/caddy/extra/despesas
+	file_server
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+	# Arquivos com hash no nome nunca mudam; o resto (index.html, sw.js, manifest) é sempre conferido,
+	# para o celular pegar a versão nova.
+	@comHash path /assets/*
+	header @comHash Cache-Control "public, max-age=31536000, immutable"
+	@semHash not path /assets/*
+	header @semHash Cache-Control "no-cache"
+}

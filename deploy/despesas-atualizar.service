@@ -1,0 +1,8 @@
+[Unit]
+Description=Atualiza o Despesas Pessoais se houver versão nova no GitHub
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh /opt/despesas/deploy/verificar.sh

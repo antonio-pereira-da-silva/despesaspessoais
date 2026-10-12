@@ -1,0 +1,10 @@
+[Unit]
+Description=Confere a cada 2 minutos se há versão nova do Despesas Pessoais
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=2min
+Unit=despesas-atualizar.service
+
+[Install]
+WantedBy=timers.target
