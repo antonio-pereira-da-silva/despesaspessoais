@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { Categoria, Despesa } from '../domain/tipos';
+import type { Categoria, Despesa, Entrada } from '../domain/tipos';
 import { abrirBanco } from './db';
 import { criarRepositorio, type Repositorio } from './repositorio';
 
@@ -10,6 +10,13 @@ const desp = (id: string, data: string, categoriaId = 'm'): Despesa => ({
   categoriaId,
   data,
   criadaEm: `${data}T10:00:00.000Z`,
+});
+
+const ent = (id: string, data: string): Entrada => ({
+  id,
+  valor: 500000,
+  data,
+  criadaEm: `${data}T08:00:00.000Z`,
 });
 
 let repo: Repositorio;
@@ -54,6 +61,27 @@ describe('repositório', () => {
     expect(await repo.obterDespesa('a')).toBeUndefined();
   });
 
+  it('obtém, altera e exclui entrada', async () => {
+    await repo.salvarEntrada(ent('e', '2026-09-05'));
+    await repo.salvarEntrada({ ...ent('e', '2026-09-05'), descricao: 'Salário' });
+    expect((await repo.obterEntrada('e'))?.descricao).toBe('Salário');
+    await repo.excluirEntrada('e');
+    expect(await repo.obterEntrada('e')).toBeUndefined();
+  });
+
+  it('lista entradas e despesas do período, inclusive nas pontas, mesmo invertido', async () => {
+    for (const e of [ent('a', '2026-08-31'), ent('b', '2026-09-01'), ent('c', '2026-09-10')]) {
+      await repo.salvarEntrada(e);
+    }
+    for (const d of [desp('x', '2026-09-10'), desp('y', '2026-09-11')]) {
+      await repo.salvarDespesa(d);
+    }
+    const ids = (itens: { id: string }[]) => itens.map((i) => i.id);
+    expect(ids(await repo.listarEntradasDoPeriodo('2026-09-01', '2026-09-10'))).toEqual(['c', 'b']);
+    expect(ids(await repo.listarEntradasDoPeriodo('2026-09-10', '2026-09-01'))).toEqual(['c', 'b']);
+    expect(ids(await repo.listarDespesasDoPeriodo('2026-09-01', '2026-09-10'))).toEqual(['x']);
+  });
+
   it('definirLimite substitui no mesmo mês e cria novo registro em outro mês', async () => {
     await repo.definirLimite('m', 80000, '2026-09');
     await repo.definirLimite('m', 90000, '2026-09');
@@ -85,6 +113,7 @@ describe('repositório', () => {
       categorias: [mercado],
       limites: [{ id: 'l1', categoriaId: 'm', valor: 80000, vigenteDesde: '2026-09' }],
       despesas: [desp('b', '2026-09-02'), desp('a', '2026-09-01')],
+      entradas: [ent('e', '2026-09-05')],
     };
     await repo.substituirTudo(dados);
     expect(await repo.exportarTudo()).toEqual(dados);

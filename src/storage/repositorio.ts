@@ -1,19 +1,24 @@
 import { novoId } from '../domain/id';
-import type { Categoria, Centavos, Despesa, Limite, Mes } from '../domain/tipos';
+import type { Categoria, Centavos, Despesa, Entrada, Limite, Mes } from '../domain/tipos';
 import type { BancoDespesas } from './db';
 
 export interface DadosCompletos {
   categorias: Categoria[];
   limites: Limite[];
   despesas: Despesa[];
+  entradas: Entrada[];
 }
 
-const TODAS = ['categorias', 'limites', 'despesas'] as const;
+const TODAS = ['categorias', 'limites', 'despesas', 'entradas'] as const;
 
-function ordenarDespesas(despesas: Despesa[]): Despesa[] {
-  return despesas.sort(
-    (a, b) => b.data.localeCompare(a.data) || b.criadaEm.localeCompare(a.criadaEm),
-  );
+/** Da mais recente para a mais antiga. */
+function ordenarPorData<T extends { data: string; criadaEm: string }>(itens: T[]): T[] {
+  return itens.sort((a, b) => b.data.localeCompare(a.data) || b.criadaEm.localeCompare(a.criadaEm));
+}
+
+/** Faixa inclusiva de datas; extremos invertidos são trocados. */
+function faixa(inicio: string, fim: string): IDBKeyRange {
+  return inicio <= fim ? IDBKeyRange.bound(inicio, fim) : IDBKeyRange.bound(fim, inicio);
 }
 
 export function criarRepositorio(db: BancoDespesas) {
@@ -58,8 +63,29 @@ export function criarRepositorio(db: BancoDespesas) {
     },
 
     async listarDespesasDoMes(mes: Mes): Promise<Despesa[]> {
-      const faixa = IDBKeyRange.bound(`${mes}-01`, `${mes}-31`);
-      return ordenarDespesas(await db.getAllFromIndex('despesas', 'data', faixa));
+      return ordenarPorData(
+        await db.getAllFromIndex('despesas', 'data', faixa(`${mes}-01`, `${mes}-31`)),
+      );
+    },
+
+    async listarDespesasDoPeriodo(inicio: string, fim: string): Promise<Despesa[]> {
+      return ordenarPorData(await db.getAllFromIndex('despesas', 'data', faixa(inicio, fim)));
+    },
+
+    async listarEntradasDoPeriodo(inicio: string, fim: string): Promise<Entrada[]> {
+      return ordenarPorData(await db.getAllFromIndex('entradas', 'data', faixa(inicio, fim)));
+    },
+
+    obterEntrada(id: string): Promise<Entrada | undefined> {
+      return db.get('entradas', id);
+    },
+
+    async salvarEntrada(entrada: Entrada): Promise<void> {
+      await db.put('entradas', entrada);
+    },
+
+    async excluirEntrada(id: string): Promise<void> {
+      await db.delete('entradas', id);
     },
 
     async dataDaPrimeiraDespesa(): Promise<string | null> {
@@ -81,13 +107,19 @@ export function criarRepositorio(db: BancoDespesas) {
 
     async exportarTudo(): Promise<DadosCompletos> {
       const tx = db.transaction(TODAS);
-      const [categorias, limites, despesas] = await Promise.all([
+      const [categorias, limites, despesas, entradas] = await Promise.all([
         tx.objectStore('categorias').getAll(),
         tx.objectStore('limites').getAll(),
         tx.objectStore('despesas').getAll(),
+        tx.objectStore('entradas').getAll(),
       ]);
       await tx.done;
-      return { categorias, limites, despesas: ordenarDespesas(despesas) };
+      return {
+        categorias,
+        limites,
+        despesas: ordenarPorData(despesas),
+        entradas: ordenarPorData(entradas),
+      };
     },
 
     /** Substitui todos os dados numa única transação (tudo ou nada). */
@@ -96,11 +128,13 @@ export function criarRepositorio(db: BancoDespesas) {
       const categorias = tx.objectStore('categorias');
       const limites = tx.objectStore('limites');
       const despesas = tx.objectStore('despesas');
-      await Promise.all([categorias.clear(), limites.clear(), despesas.clear()]);
+      const entradas = tx.objectStore('entradas');
+      await Promise.all([categorias.clear(), limites.clear(), despesas.clear(), entradas.clear()]);
       await Promise.all([
         ...dados.categorias.map((c) => categorias.put(c)),
         ...dados.limites.map((l) => limites.put(l)),
         ...dados.despesas.map((d) => despesas.put(d)),
+        ...dados.entradas.map((e) => entradas.put(e)),
       ]);
       await tx.done;
     },
