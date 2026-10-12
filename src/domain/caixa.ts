@@ -1,4 +1,4 @@
-import { mesDe, proximoMes } from './mes';
+import { mesDe } from './mes';
 import type { Categoria, Centavos, Despesa, Entrada, Mes } from './tipos';
 
 export interface Totais {
@@ -16,7 +16,12 @@ export interface LinhaMes extends Totais {
 export interface ResumoCaixa {
   meses: LinhaMes[];
   totais: Totais;
+  /** O intervalo pedido passava de MAX_MESES_CAIXA e foi cortado. */
+  limitado: boolean;
 }
+
+/** Mais que isso trava o celular; ficam os meses mais recentes. */
+export const MAX_MESES_CAIXA = 120;
 
 export interface LinhaExtrato {
   tipo: 'entrada' | 'saida';
@@ -60,12 +65,23 @@ function emOrdem<T extends string>(a: T, b: T): [T, T] {
   return a <= b ? [a, b] : [b, a];
 }
 
-/** Meses de `de` a `ate`, inclusive; extremos invertidos são trocados. */
+const indiceDoMes = (mes: Mes) => {
+  const [ano, numero] = mes.split('-').map(Number);
+  return ano * 12 + numero - 1;
+};
+
+const mesDoIndice = (indice: number): Mes =>
+  `${String(Math.floor(indice / 12)).padStart(4, '0')}-${String((indice % 12) + 1).padStart(2, '0')}`;
+
+/**
+ * Meses de `de` a `ate`, inclusive; extremos invertidos são trocados. Limitado aos
+ * MAX_MESES_CAIXA mais recentes.
+ */
 export function mesesDoIntervalo(de: Mes, ate: Mes): Mes[] {
   const [inicio, fim] = emOrdem(de, ate);
-  const meses: Mes[] = [];
-  for (let mes = inicio; mes <= fim; mes = proximoMes(mes)) meses.push(mes);
-  return meses;
+  const ultimo = indiceDoMes(fim);
+  const primeiro = Math.max(indiceDoMes(inicio), ultimo - MAX_MESES_CAIXA + 1);
+  return Array.from({ length: ultimo - primeiro + 1 }, (_, i) => mesDoIndice(primeiro + i));
 }
 
 export function resumoPorMes(
@@ -89,8 +105,10 @@ export function resumoPorMes(
     acumulado += e - s;
     meses.push({ mes, ...totais(e, s), acumulado });
   }
+  const [inicio, fim] = emOrdem(de, ate);
   return {
     meses,
+    limitado: indiceDoMes(fim) - indiceDoMes(inicio) + 1 > MAX_MESES_CAIXA,
     totais: totais(
       meses.reduce((soma, l) => soma + l.entradas, 0),
       meses.reduce((soma, l) => soma + l.saidas, 0),

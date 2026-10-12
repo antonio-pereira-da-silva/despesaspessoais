@@ -1,5 +1,11 @@
 import { Link, useSearchParams } from 'react-router';
-import { extratoDoPeriodo, resumoPorMes, type Extrato, type ResumoCaixa } from '../../domain/caixa';
+import {
+  extratoDoPeriodo,
+  MAX_MESES_CAIXA,
+  resumoPorMes,
+  type Extrato,
+  type ResumoCaixa,
+} from '../../domain/caixa';
 import { formatarBRL } from '../../domain/dinheiro';
 import {
   ehDataValida,
@@ -109,47 +115,54 @@ function CaixaPorMes() {
 
 function TabelaMeses({ resumo }: { resumo: ResumoCaixa }) {
   return (
-    <div className="tabela-rolagem">
-      <table className="tabela-caixa">
-        <thead>
-          <tr>
-            <th scope="col">Mês</th>
-            <th scope="col">Entradas</th>
-            <th scope="col">Saídas</th>
-            <th scope="col">Saldo</th>
-            <th scope="col">Acumulado</th>
-          </tr>
-        </thead>
-        <tbody>
-          {resumo.meses.map((l) => (
-            <tr key={l.mes}>
-              <th scope="row">
-                <Link to={`/caixa/mes/${l.mes}`}>{nomeCurtoDoMes(l.mes)}</Link>
-              </th>
-              <td>{formatarBRL(l.entradas)}</td>
-              <td>{formatarBRL(l.saidas)}</td>
-              <td>
-                <Dinheiro valor={l.saldo} />
-              </td>
-              <td>
-                <Dinheiro valor={l.acumulado} />
-              </td>
+    <>
+      {resumo.limitado && (
+        <p className="aviso">
+          Intervalo muito longo: mostrando só os últimos {MAX_MESES_CAIXA} meses.
+        </p>
+      )}
+      <div className="tabela-rolagem">
+        <table className="tabela-caixa">
+          <thead>
+            <tr>
+              <th scope="col">Mês</th>
+              <th scope="col">Entradas</th>
+              <th scope="col">Saídas</th>
+              <th scope="col">Saldo</th>
+              <th scope="col">Acumulado</th>
             </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          <tr>
-            <th scope="row">Total</th>
-            <td>{formatarBRL(resumo.totais.entradas)}</td>
-            <td>{formatarBRL(resumo.totais.saidas)}</td>
-            <td>
-              <Dinheiro valor={resumo.totais.saldo} />
-            </td>
-            <td />
-          </tr>
-        </tfoot>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {resumo.meses.map((l) => (
+              <tr key={l.mes}>
+                <th scope="row">
+                  <Link to={`/caixa/mes/${l.mes}`}>{nomeCurtoDoMes(l.mes)}</Link>
+                </th>
+                <td>{formatarBRL(l.entradas)}</td>
+                <td>{formatarBRL(l.saidas)}</td>
+                <td>
+                  <Dinheiro valor={l.saldo} />
+                </td>
+                <td>
+                  <Dinheiro valor={l.acumulado} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="row">Total</th>
+              <td>{formatarBRL(resumo.totais.entradas)}</td>
+              <td>{formatarBRL(resumo.totais.saidas)}</td>
+              <td>
+                <Dinheiro valor={resumo.totais.saldo} />
+              </td>
+              <td />
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </>
   );
 }
 
